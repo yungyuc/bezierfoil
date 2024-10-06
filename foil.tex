@@ -1,0 +1,66 @@
+% (C) 2024 Yung-Yu Chen.  All rights reserved.
+% chktex-file 3
+% chktex-file 8
+% chktex-file 10
+% chktex-file 13
+% chktex-file 17
+% chktex-file 25
+% chktex-file 36
+% chktex-file 37
+
+\documentclass{turgon}
+
+%\usepackage{lmodern}
+
+\usepackage[printwatermark]{xwatermark}
+\newwatermark[allpages,color=black!15,angle=55,scale=5,xpos=0,ypos=0]%
+{DRAFT}
+
+%\doublespacing
+\linespread{1.2}
+
+\title{
+%
+Title that Jie-Yin and Jenny need to decide
+%
+}
+
+\author{
+%
+Yung-Yu Chen
+%
+}
+
+%\date{2008.6.4}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+\chapter*{Introduction}
+\addcontentsline{toc}{chapter}{Introduction}
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+This file collects notes to fit NACA airfoil by using cubic Bezier curve so
+that we can generate mesh for field to be solved by using the CESE
+method\cite{chang_method_1995}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+\clearpage
+\addcontentsline{toc}{chapter}{Bibliography}
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%\bibliographystyle{myunsrtnat} % no sort (order in appearance)
+\bibliographystyle{myplainnat} % sort by author
+\bibliography{turgon_main}
+
+\end{document}
+
+% vim: set ff=unix fenc=utf8 et sw=2 ts=2 sts=2 tw=79:
