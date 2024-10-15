@@ -21,13 +21,13 @@
 
 \title{
 %
-Title that Jie-Yin and Jenny need to decide
+Fit Four-digit NACA Airfoil with Cubic Bezier Curve
 %
 }
 
 \author{
 %
-Yung-Yu Chen
+Yung-Yu Chen and Jie-Yin Lin
 %
 }
 
@@ -49,6 +49,242 @@ Yung-Yu Chen
 This file collects notes to fit NACA airfoil by using cubic Bezier curve so
 that we can generate mesh for field to be solved by using the CESE
 method\cite{chang_method_1995}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+\chapter{Four-digit NACA Airfoil}
+% ref: https://en.wikipedia.org/wiki/NACA_airfoil#Five-digit_series
+
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{flushleft}
+
+The introduction of airfoil:
+\begin{enumerate}
+    \item
+    Chord ($c$)
+    \item
+    Maximum camber ($m$)
+    \item
+    Maximum camber location ($p$)
+    \item
+    Maximum thickness ($h$)
+    \item
+    Camber line (red dashed line)
+    \item
+    Leading edge ($x = 0, y = 0$)
+    \item
+    Trailing edge ($x = c, y = 0$)
+\end{enumerate}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{airfoil_shape_image.eps}
+    \caption{The parameters in wing profile.}
+    \label{fig:airfoil_shape_image}
+\end{figure}
+% figure downloaded from: https://www.researchgate.net/figure/AIRFOIL-SHAPE-PARAMETERS_fig4_267490031
+
+\bigbreak
+The wing profile is defined by four-digit ($XYZZ$):
+\begin{enumerate}
+    \item
+    The 1st digit is the maximum camber as percentage of the chord.
+    \begin{equation}
+        m = c \times (X/100)
+    \end{equation}
+    \item
+    The 2nd digit is the maximum camber location in tenths of the chord.
+    \begin{equation}
+        p = c \times (Y/10)
+    \end{equation}
+    \item
+    The last two digits are the maximum thickness as percent of the chord.
+    \begin{equation}
+        h = c \times (ZZ/100)
+    \end{equation}
+\end{enumerate}
+
+\bigbreak
+The thickness equation is
+\begin{equation}
+    y_h = 5h[0.2969\sqrt{x}-0.1260x-0.3516x^2+0.2843x^3-0.1015x^4]
+\end{equation}
+where $x$ is the position along the chord (from $0$ to $1$), $y_h$ is the
+half thickness at a given value of $x$, and $h$ is the maximum thickness.
+
+\bigbreak
+The camber line equation is
+\begin{equation}
+    y_c =
+    \begin{cases}
+    \frac{m}{p^2} (2px - x^2); & 0 \leq x \leq p \\
+    \frac{m}{(1-p)^2} (1 - 2p + 2px - x^2);  &  p \leq x \leq 1
+    \end{cases}
+\end{equation}
+where $y_c$ is the camber line point at a given value of $x$, $m$ is the
+maximum camber, and $p$ is the location of maximum camber.
+
+\bigbreak
+The upper surface equation is
+\begin{equation}
+    x_u = x - y_h \sin\theta
+    \label{eq:naca:up_x}
+\end{equation}
+\begin{equation}
+    y_u = y_c + y_h \cos\theta
+    \label{eq:naca:up_y}
+\end{equation}
+and the lower surface equation is
+\begin{equation}
+    x_l = x + y_h \sin\theta
+\end{equation}
+\begin{equation}
+    y_l = y_c - y_h \cos\theta
+\end{equation}
+where
+\begin{equation}
+    \theta =
+    \begin{cases}
+    \frac{2m}{p^2} (p - x); & 0 \leq x \leq p \\
+    \frac{2m}{(1-p)^2} (p - x);  &  p \leq x \leq 1
+    \end{cases}
+\end{equation}
+
+\end{flushleft}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+\chapter{Cubic Bezier Curve}
+% ref: https://en.wikipedia.org/wiki/B%C3%A9zier_curve#Cubic_B%C3%A9zier_curves
+
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{flushleft}
+
+The cubic Bezier curve is defined by 4 controll points $P_0(X_0, Y_0)$,
+$P_1(X_1, Y_1)$, $P_2(X_2, Y_2)$, and $P_3(X_3, Y_3)$.
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.3\textwidth]{cubic_bezier_curve.eps}
+    \caption{The cubic Bezier curve.}
+    \label{fig:cubic_bezier_curve}
+\end{figure}
+% figure downloaded from: https://btnseniorproject17.wordpress.com/2017/05/01/more-unity-part-2-path-following-and-bezier-curves/
+
+\bigbreak
+The function $B(t)$ is
+\begin{equation}
+    B(t) = (1-t)^3 P_0 + 3(1-t)^2 t P_1 + 3(1-t) t^2 P_2 + t^3 P_3
+    \label{eq:cbc:der0}
+\end{equation}
+where $0 \leq t \leq 1$. \\
+The derivative of $B(t)$ is
+\begin{equation}
+    B'(t) = 3[(1-t)^2 (P_1 - P_0) + 2(1-t)t(P_2 - P_1) + t^2(P_3 - P_2)]
+\end{equation}
+The second derivative of $B(t)$ is
+\begin{equation}
+    B''(t) = 6[(1-t)(P_2 - 2P_1 + P_0) + t(P_3 - 2P_2 + P_1)]
+\end{equation}
+
+\end{flushleft}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+\chapter{Linear Least Squares}
+% ref: https://en.wikipedia.org/wiki/Linear_least_squares
+
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{flushleft}
+
+Linear least squares (LLS) is a set of formulations for solving statistical
+problems involved in linear regression, including variants for ordinary,
+weighted, and generalized residuals.
+
+\bigbreak
+Consider the linear equation
+\begin{equation}
+    Ax = b
+    \label{eq:lls:leq}
+\end{equation}
+where $A \in \mathbb{R}^{m \times n}$ and $b \in \mathbb{R}^m$. when $m>n$,
+$x \in \mathbb{R}^n$ is the solution of
+\begin{equation}
+    \underset{x \in \mathbb{R}^n}{\text{minimize}} ||A x - b||^2
+\end{equation}
+$x$ can be computed by
+\begin{equation}
+    A^\top A x^* = A^\top b
+\end{equation}
+\begin{equation}
+    x^* = (A^\top A)^{-1} A^\top b
+    \label{eq:lls:sol}
+\end{equation}
+where $A^\top$ denotes the transpose of $A$ and $Ax^*$ is the projection of
+$b$ in columnn space of $A$.
+
+\end{flushleft}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+\chapter{Fit Symmetry Four-digit Airfoil with Cubic Bezier Curve}
+
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{flushleft}
+
+By adapting a symmetry four-digit NACA airfoil ($00ZZ$), the maximum camber
+($m$) and maximum camber location ($p$) are equal to $0$. Then,
+Eq.(\ref{eq:naca:up_x}) and Eq.(\ref{eq:naca:up_y}) of airfoil upper
+surface can be simplified as
+\begin{equation}
+    x_u = x
+    \label{eq:naca:up_x_sym}
+\end{equation}
+\begin{equation}
+    y_u = 5h[0.2969\sqrt{x}-0.1260x-0.3516x^2+0.2843x^3-0.1015x^4]
+    \label{eq:naca:up_y_sym}
+\end{equation}
+Here, we fix the first and the last controll points at leading edge and
+trailing edge. Eq.(\ref{eq:cbc:der0}) becomes
+\begin{equation}
+    \begin{bmatrix} x_u \\ y_u \end{bmatrix}
+        = 3(1-t)^2 t \begin{bmatrix} X_1 \\ Y_1 \end{bmatrix}
+        + 3(1-t) t^2 \begin{bmatrix} X_2 \\ Y_2 \end{bmatrix}
+        + t^3 \begin{bmatrix} c \\ 0 \end{bmatrix}
+\end{equation}
+We adapt $N$ data points in airfoil upper surface to get the fitting curve.
+By assuming the distribution of $x$ inEq.(\ref{eq:naca:up_x_sym}) and
+Eq.(\ref{eq:naca:up_x_sym}) is the same as $t$ in Eq.(\ref{eq:cbc:der0}).
+The linear least square equation can be written as
+\begin{equation}
+    \begin{bmatrix}
+        3(1 - x_0)^2 x_0 & 3(1 - x_0) x_0^2 \\
+        3(1 - x_1)^2 x_1 & 3(1 - x_1) x_1^2 \\
+        \vdots & \vdots \\
+        3(1 - x_{N-1})^2 x_{N-1} & 3(1 - x_{N-1}) x_{N-1}^2 \\
+    \end{bmatrix}
+    \begin{bmatrix}
+        X_1 & Y_1 \\ 
+        X_2 & Y_2
+    \end{bmatrix}
+    =
+    \begin{bmatrix}
+        x_u(x_0) - x_0^3 c & y_u(x_0) \\
+        x_u(x_1) - x_1^3 c & y_u(x_1) \\
+        \vdots \\
+        x_u(x_{N-1}) - x_{N-1}^3 c & y_u(x_{N-1}) 
+    \end{bmatrix}
+\end{equation}
+The controll points $P_1(X_1, Y_1)$ and $P_2(X_2, Y_2)$ can be solved by
+Eq.(\ref{eq:lls:sol}). 
+
+\end{flushleft}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%

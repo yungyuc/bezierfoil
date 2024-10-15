@@ -7,7 +7,7 @@ tmp/
 /log/
 /handover
 /setup.mk
-/*_eps/
+/*_eps/*.pdf
 /*.aux
 /*.bbl
 /*.blg
