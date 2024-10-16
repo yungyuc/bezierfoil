@@ -131,7 +131,7 @@ foil_ho: foil.pdf
 
 .PHONY: tex
 tex:
-	chktex foil.tex projection.tex ustmesh.tex
+	chktex foil.tex
 
 .PHONY: lint
 lint: tex
