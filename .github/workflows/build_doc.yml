@@ -1,0 +1,43 @@
+name: build_doc
+
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: '30 17 * * *'
+
+jobs:
+
+  build_pdf:
+
+    name: build_pdf
+
+    runs-on: ubuntu-22.04
+
+    steps:
+
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 1
+
+    - name: dependency by apt
+      run: |
+        sudo apt-get -qqy update
+        sudo apt-get -qy install texlive-latex-extra texlive-pstricks texlive-science
+        # for lint
+        sudo apt-get -qy install chktex
+
+    - name: make
+      run: |
+        make
+
+    - name: lint check
+      run: |
+        make lint
+
+    - name: Archive PDF
+      uses: actions/upload-artifact@v4
+      with:
+        name: archive PDF
+        path: |
+          *.pdf
