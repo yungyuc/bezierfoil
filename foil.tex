@@ -177,6 +177,13 @@ The second-order derivative of $B(t)$ is
 \begin{equation}
     B''(t) = 6\left[(1-t)(P_2 - 2P_1 + P_0) + t(P_3 - 2P_2 + P_1)\right]
 \end{equation}
+For a sequence of $n+1$ cubic Bezier curves, $B_0(t)$ through $B_n(t)$,
+there are $4(n+1)$ controll points can be adjusted. It implies that there
+are $4(n+1)$ dimensions of freedom. Assume the first and last points are
+fixed. If we wish the value, slope, and curvature between any two Bezier
+curves are continuous, the degree of freedom will become $n+2$. Thus, we
+can keep the continuous value of curvature when adding the number of Bezier
+curves.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
