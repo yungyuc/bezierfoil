@@ -121,7 +121,7 @@ The camber line equation is
 where $y_c$ is the camber line point at a given value of $x$, $m$ is the
 maximum camber, and $p$ is the location of maximum camber.
 
-The upper surface equation is
+The point $F_u(x_u, y_u)$ in upper surface equation is
 \begin{align}
     x_u &= x - y_h \sin\theta
     \label{e:naca:up_x}
@@ -129,7 +129,7 @@ The upper surface equation is
     y_u &= y_c + y_h \cos\theta
     \label{e:naca:up_y}
 \end{align}
-and the lower surface equation is
+and the point $F_l(x_l, y_l)$ in lower surface equation is
 \begin{align*}
     x_l &= x + y_h \sin\theta
     \\
@@ -137,7 +137,7 @@ and the lower surface equation is
 \end{align*}
 where
 \begin{equation*}
-    \theta =
+    \arctan \theta =
     \begin{cases}
     \frac{2m}{p^2} (p - x); & 0 \leq x \leq p \\
     \frac{2m}{(1-p)^2} (p - x);  &  p \leq x \leq 1
@@ -220,15 +220,69 @@ $b$ in columnn space of $A$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
-\chapter{Fit Symmetry Four-digit Airfoil with Cubic Bezier Curve}
+\chapter{Fit Symmetry Four-digit NACA Airfoil with Cubic Bezier Curve}
 
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-By adapting a symmetry four-digit NACA airfoil ($\mathrm{00ZZ}$), the maximum
-camber ($m$) and maximum camber location ($p$) are equal to $0$. Then,
-Eq.~(\ref{e:naca:up_x}) and Eq.~(\ref{e:naca:up_y}) of airfoil upper surface
-can be simplified as
+We adapt $N$ data points in airfoil upper surface to get the fitting curve.
+Compare point $B(t_n)$ in Eq.~(\ref{e:cbc:der0}) with point $F_u(x_i)$ in
+Eq.~(\ref{e:naca:up_x_sym}). Here, we fix controll points $P_0$ and $P_3$ at
+leading edge and trailing edge. the linear least square equation can be
+written as
+\begin{equation*}
+    \begin{bmatrix}
+        3(1 - t_0)^2 t_0 & 3(1 - t_0) t_0^2 \\
+        3(1 - t_1)^2 t_1 & 3(1 - t_1) t_1^2 \\
+        \vdots & \vdots \\
+        3(1 - t_{N-1})^2 t_{N-1} & 3(1 - t_{N-1}) t_{N-1}^2 \\
+    \end{bmatrix}
+    \begin{bmatrix}
+        P_1 \\
+        P_2
+    \end{bmatrix}
+    =
+    \begin{bmatrix}
+        F_u(x_0) \\
+        F_u(x_1) \\
+        \vdots \\
+        F_u(x_{N-1})
+    \end{bmatrix}
+    -
+    \begin{bmatrix}
+        t_0^3 \\
+        t_1^3 \\
+        \vdots \\
+        t_{N-1}^3
+    \end{bmatrix}
+    P_0 -
+    \begin{bmatrix}
+        (1 - t_0)^3 \\
+        (1 - t_1)^3 \\
+        \vdots \\
+        (1 - t_{N-1})^3
+    \end{bmatrix}
+    P_3
+\end{equation*}
+where
+\begin{align*}
+    P_0 = 
+    \begin{bmatrix}
+        0 & 0
+    \end{bmatrix}
+    \\
+    P_3 = 
+    \begin{bmatrix}
+        c & 0
+    \end{bmatrix}
+\end{align*}
+Then, the controll points $P_1(X_1, Y_1)$ and $P_2(X_2, Y_2)$ can be solved
+by Eq.~(\ref{e:lls:sol}).
+
+By adapting a symmetry four-digit NACA airfoil ($\mathrm{00ZZ}$), the
+maximum camber ($m$) and maximum camber location ($p$) are equal to $0$.
+Then, Eq.~(\ref{e:naca:up_x}) and Eq.~(\ref{e:naca:up_y}) of airfoil upper
+surface can be simplified as
 \begin{equation}
     x_u = x
     \label{e:naca:up_x_sym}
@@ -237,39 +291,6 @@ can be simplified as
     y_u = 5h[0.2969\sqrt{x}-0.1260x-0.3516x^2+0.2843x^3-0.1015x^4]
     \label{e:naca:up_y_sym}
 \end{equation}
-Here, we fix the first and the last controll points at leading edge and
-trailing edge. Eq.~(\ref{e:cbc:der0}) becomes
-\begin{equation*}
-    \begin{bmatrix} x_u \\ y_u \end{bmatrix}
-        = 3(1-t)^2 t \begin{bmatrix} X_1 \\ Y_1 \end{bmatrix}
-        + 3(1-t) t^2 \begin{bmatrix} X_2 \\ Y_2 \end{bmatrix}
-        + t^3 \begin{bmatrix} c \\ 0 \end{bmatrix}
-\end{equation*}
-We adapt $N$ data points in airfoil upper surface to get the fitting curve.  By
-assuming the distribution of $x$ in Eq.~(\ref{e:naca:up_x_sym}) and
-Eq.~(\ref{e:naca:up_x_sym}) is the same as $t$ in Eq.~(\ref{e:cbc:der0}).  The
-linear least square equation can be written as
-\begin{equation*}
-    \begin{bmatrix}
-        3(1 - x_0)^2 x_0 & 3(1 - x_0) x_0^2 \\
-        3(1 - x_1)^2 x_1 & 3(1 - x_1) x_1^2 \\
-        \vdots & \vdots \\
-        3(1 - x_{N-1})^2 x_{N-1} & 3(1 - x_{N-1}) x_{N-1}^2 \\
-    \end{bmatrix}
-    \begin{bmatrix}
-        X_1 & Y_1 \\
-        X_2 & Y_2
-    \end{bmatrix}
-    =
-    \begin{bmatrix}
-        x_u(x_0) - x_0^3 c & y_u(x_0) \\
-        x_u(x_1) - x_1^3 c & y_u(x_1) \\
-        \vdots \\
-        x_u(x_{N-1}) - x_{N-1}^3 c & y_u(x_{N-1})
-    \end{bmatrix}
-\end{equation*}
-The controll points $P_1(X_1, Y_1)$ and $P_2(X_2, Y_2)$ can be solved by
-Eq.~(\ref{e:lls:sol}).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
