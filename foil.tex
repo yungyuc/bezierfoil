@@ -147,11 +147,29 @@ where
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
 \chapter{Cubic Bezier Curve}
+% ref: https://en.wikipedia.org/wiki/Bernstein_polynomial
 % ref: https://en.wikipedia.org/wiki/B%C3%A9zier_curve#Cubic_B%C3%A9zier_curves
 
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+The basis functions for an $n$th degree Bezier curve are expressed as a linear
+combination of Bernstein basis polynomials of degree $n$. The items of Bernstein
+basis polynomials of degree $n$ are defined as
+\begin{equation}
+    b_{m, n}(t) = {n \choose m} t^m (1 - t)^{n - m}
+    \label{e:cbc:bbp}
+\end{equation}
+where ${n \choose v}$ is a binomial coefficient and $m=0,1, \dots ,n$. The
+Bernstein basis polynomials have the following properties:
+\begin{enumerate}
+    \item
+    $b_{m, n}(t) = 0$, if $m < 0$ or $m > n$.
+    \item
+    $b_{m, n}(t) \geq 0$, for $t \in [0, 1]$.
+    \item
+    $b_{m, n}(1 - t) = b_{n - m, n}(t)$.
+\end{enumerate}
 The cubic Bezier curve is defined by 4 controll points $P_0(X_0, Y_0)$,
 $P_1(X_1, Y_1)$, $P_2(X_2, Y_2)$, and $P_3(X_3, Y_3)$.
 \begin{figure}[h]
@@ -161,22 +179,26 @@ $P_1(X_1, Y_1)$, $P_2(X_2, Y_2)$, and $P_3(X_3, Y_3)$.
     \label{f:cubic_bezier_curve}
 \end{figure}
 % figure downloaded from: https://btnseniorproject17.wordpress.com/2017/05/01/more-unity-part-2-path-following-and-bezier-curves/
-
 The function $B(t)$ is
+\begin{equation*}
+    B(t) = \Sigma b_{i,3}(t)P_i
+\end{equation*}
+where $b_{i,3}(t)$ is shown in Eq.~(\ref{e:cbc:bbp}). This function can be
+expanded to
 \begin{equation}
     B(t) = (1-t)^3 P_0 + 3(1-t)^2 t P_1 + 3(1-t) t^2 P_2 + t^3 P_3
     \label{e:cbc:der0}
 \end{equation}
 where $0 \leq t \leq 1$.  The first-order derivative of $B(t)$ is
-\begin{equation}
+\begin{equation*}
     B'(t) = 3\left[
       (1-t)^2 (P_1 - P_0) + 2(1-t)t(P_2 - P_1) + t^2(P_3 - P_2)
     \right]
-\end{equation}
+\end{equation*}
 The second-order derivative of $B(t)$ is
-\begin{equation}
+\begin{equation*}
     B''(t) = 6\left[(1-t)(P_2 - 2P_1 + P_0) + t(P_3 - 2P_2 + P_1)\right]
-\end{equation}
+\end{equation*}
 For a sequence of $n+1$ cubic Bezier curves, $B_0(t)$ through $B_n(t)$,
 there are $4(n+1)$ controll points can be adjusted. It implies that there
 are $4(n+1)$ dimensions of freedom. Assume the first and last points are
