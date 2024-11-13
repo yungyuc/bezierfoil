@@ -121,7 +121,7 @@ The camber line equation is
 where $y_c$ is the camber line point at a given value of $x$, $m$ is the
 maximum camber, and $p$ is the location of maximum camber.
 
-The upper surface equation is
+The point $F_u(x_u, y_u)$ in upper surface equation is
 \begin{align}
     x_u &= x - y_h \sin\theta
     \label{e:naca:up_x}
@@ -129,7 +129,7 @@ The upper surface equation is
     y_u &= y_c + y_h \cos\theta
     \label{e:naca:up_y}
 \end{align}
-and the lower surface equation is
+and the point $F_l(x_l, y_l)$ in lower surface equation is
 \begin{align*}
     x_l &= x + y_h \sin\theta
     \\
@@ -137,7 +137,7 @@ and the lower surface equation is
 \end{align*}
 where
 \begin{equation*}
-    \theta =
+    \arctan \theta =
     \begin{cases}
     \frac{2m}{p^2} (p - x); & 0 \leq x \leq p \\
     \frac{2m}{(1-p)^2} (p - x);  &  p \leq x \leq 1
@@ -147,14 +147,16 @@ where
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
 \chapter{Cubic Bezier Curve}
+% ref: https://en.wikipedia.org/wiki/Bernstein_polynomial
 % ref: https://en.wikipedia.org/wiki/B%C3%A9zier_curve#Cubic_B%C3%A9zier_curves
 
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-The cubic Bezier curve is defined by 4 controll points $P_0(X_0, Y_0)$,
-$P_1(X_1, Y_1)$, $P_2(X_2, Y_2)$, and $P_3(X_3, Y_3)$.
-\begin{figure}[h]
+The basis functions for an $n$th degree Bezier curve are expressed as a linear
+combination of Bernstein basis polynomials of degree $n$.
+
+\begin{figure}[htbp]
     \centering
     \includegraphics[width=0.3\textwidth]{cubic_bezier_curve.eps}
     \caption{The cubic Bezier curve.}
@@ -162,21 +164,50 @@ $P_1(X_1, Y_1)$, $P_2(X_2, Y_2)$, and $P_3(X_3, Y_3)$.
 \end{figure}
 % figure downloaded from: https://btnseniorproject17.wordpress.com/2017/05/01/more-unity-part-2-path-following-and-bezier-curves/
 
-The function $B(t)$ is
+The items of Bernstein basis polynomials of degree $n$ are defined as
+\begin{equation}
+    b_{m, n}(t) = {n \choose m} t^m (1 - t)^{n - m}
+    \label{e:cbc:bbp}
+\end{equation}
+where ${n \choose m}$ is a binomial coefficient and $m=0,1, \dots ,n$. The
+Bernstein basis polynomials have the following properties:
+\begin{enumerate}
+    \item
+    $b_{m, n}(t) = 0$, if $m < 0$ or $m > n$.
+    \item
+    $b_{m, n}(t) \geq 0$, for $t \in [0, 1]$.
+    \item
+    $b_{m, n}(1 - t) = b_{n - m, n}(t)$.
+\end{enumerate}
+The cubic Bezier curve is defined by 4 control points $P_0(X_0, Y_0)$,
+$P_1(X_1, Y_1)$, $P_2(X_2, Y_2)$, and $P_3(X_3, Y_3)$.  The function $B(t)$ is
+\begin{equation*}
+    B(t) = \Sigma b_{i,3}(t)P_i
+\end{equation*}
+where $b_{i,3}(t)$ is shown in Eq.~(\ref{e:cbc:bbp}). This function can be
+expanded to
 \begin{equation}
     B(t) = (1-t)^3 P_0 + 3(1-t)^2 t P_1 + 3(1-t) t^2 P_2 + t^3 P_3
     \label{e:cbc:der0}
 \end{equation}
 where $0 \leq t \leq 1$.  The first-order derivative of $B(t)$ is
-\begin{equation}
+\begin{equation*}
     B'(t) = 3\left[
       (1-t)^2 (P_1 - P_0) + 2(1-t)t(P_2 - P_1) + t^2(P_3 - P_2)
     \right]
-\end{equation}
+\end{equation*}
 The second-order derivative of $B(t)$ is
-\begin{equation}
+\begin{equation*}
     B''(t) = 6\left[(1-t)(P_2 - 2P_1 + P_0) + t(P_3 - 2P_2 + P_1)\right]
-\end{equation}
+\end{equation*}
+
+For a sequence of $n+1$ cubic Bezier curves, $B_0(t)$ through $B_n(t)$,
+there are $4(n+1)$ controll points can be adjusted. It implies that there
+are $4(n+1)$ dimensions of freedom. Assume the first and last points are
+fixed. If we wish the value, slope, and curvature between any two Bezier
+curves are continuous, the degree of freedom will become $n+2$. Thus, we
+can keep the continuous value of curvature when adding the number of Bezier
+curves.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
@@ -213,15 +244,69 @@ $b$ in columnn space of $A$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
-\chapter{Fit Symmetry Four-digit Airfoil with Cubic Bezier Curve}
+\chapter{Fit Symmetry Four-digit NACA Airfoil with Cubic Bezier Curve}
 
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-By adapting a symmetry four-digit NACA airfoil ($\mathrm{00ZZ}$), the maximum
-camber ($m$) and maximum camber location ($p$) are equal to $0$. Then,
-Eq.~(\ref{e:naca:up_x}) and Eq.~(\ref{e:naca:up_y}) of airfoil upper surface
-can be simplified as
+We adapt $N$ data points in airfoil upper surface to get the fitting curve.
+Compare point $B(t_n)$ in Eq.~(\ref{e:cbc:der0}) with point $F_u(x_i)$ in
+Eq.~(\ref{e:naca:up_x_sym}). Here, we fix controll points $P_0$ and $P_3$ at
+leading edge and trailing edge. The linear least square equation can be
+written as
+\begin{equation*}
+    \begin{bmatrix}
+        3(1 - t_0)^2 t_0 & 3(1 - t_0) t_0^2 \\
+        3(1 - t_1)^2 t_1 & 3(1 - t_1) t_1^2 \\
+        \vdots & \vdots \\
+        3(1 - t_{N-1})^2 t_{N-1} & 3(1 - t_{N-1}) t_{N-1}^2 \\
+    \end{bmatrix}
+    \begin{bmatrix}
+        P_1 \\
+        P_2
+    \end{bmatrix}
+    =
+    \begin{bmatrix}
+        F_u(x_0) \\
+        F_u(x_1) \\
+        \vdots \\
+        F_u(x_{N-1})
+    \end{bmatrix}
+    -
+    \begin{bmatrix}
+        t_0^3 \\
+        t_1^3 \\
+        \vdots \\
+        t_{N-1}^3
+    \end{bmatrix}
+    P_0 -
+    \begin{bmatrix}
+        (1 - t_0)^3 \\
+        (1 - t_1)^3 \\
+        \vdots \\
+        (1 - t_{N-1})^3
+    \end{bmatrix}
+    P_3
+\end{equation*}
+where
+\begin{align*}
+    P_0 =
+    \begin{bmatrix}
+        0 & 0
+    \end{bmatrix}
+    \\
+    P_3 =
+    \begin{bmatrix}
+        c & 0
+    \end{bmatrix}
+\end{align*}
+Then, the controll points $P_1(X_1, Y_1)$ and $P_2(X_2, Y_2)$ can be solved
+by Eq.~(\ref{e:lls:sol}).
+
+By adapting a symmetry four-digit NACA airfoil ($\mathrm{00ZZ}$), the
+maximum camber ($m$) and maximum camber location ($p$) are equal to $0$.
+Then, Eq.~(\ref{e:naca:up_x}) and Eq.~(\ref{e:naca:up_y}) of airfoil upper
+surface can be simplified as
 \begin{equation}
     x_u = x
     \label{e:naca:up_x_sym}
@@ -230,39 +315,6 @@ can be simplified as
     y_u = 5h[0.2969\sqrt{x}-0.1260x-0.3516x^2+0.2843x^3-0.1015x^4]
     \label{e:naca:up_y_sym}
 \end{equation}
-Here, we fix the first and the last controll points at leading edge and
-trailing edge. Eq.~(\ref{e:cbc:der0}) becomes
-\begin{equation*}
-    \begin{bmatrix} x_u \\ y_u \end{bmatrix}
-        = 3(1-t)^2 t \begin{bmatrix} X_1 \\ Y_1 \end{bmatrix}
-        + 3(1-t) t^2 \begin{bmatrix} X_2 \\ Y_2 \end{bmatrix}
-        + t^3 \begin{bmatrix} c \\ 0 \end{bmatrix}
-\end{equation*}
-We adapt $N$ data points in airfoil upper surface to get the fitting curve.  By
-assuming the distribution of $x$ in Eq.~(\ref{e:naca:up_x_sym}) and
-Eq.~(\ref{e:naca:up_x_sym}) is the same as $t$ in Eq.~(\ref{e:cbc:der0}).  The
-linear least square equation can be written as
-\begin{equation*}
-    \begin{bmatrix}
-        3(1 - x_0)^2 x_0 & 3(1 - x_0) x_0^2 \\
-        3(1 - x_1)^2 x_1 & 3(1 - x_1) x_1^2 \\
-        \vdots & \vdots \\
-        3(1 - x_{N-1})^2 x_{N-1} & 3(1 - x_{N-1}) x_{N-1}^2 \\
-    \end{bmatrix}
-    \begin{bmatrix}
-        X_1 & Y_1 \\
-        X_2 & Y_2
-    \end{bmatrix}
-    =
-    \begin{bmatrix}
-        x_u(x_0) - x_0^3 c & y_u(x_0) \\
-        x_u(x_1) - x_1^3 c & y_u(x_1) \\
-        \vdots \\
-        x_u(x_{N-1}) - x_{N-1}^3 c & y_u(x_{N-1})
-    \end{bmatrix}
-\end{equation*}
-The controll points $P_1(X_1, Y_1)$ and $P_2(X_2, Y_2)$ can be solved by
-Eq.~(\ref{e:lls:sol}).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
