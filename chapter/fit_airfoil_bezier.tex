@@ -1,0 +1,144 @@
+% chktex-file 3
+% chktex-file 8
+% chktex-file 10
+% chktex-file 13
+% chktex-file 17
+% chktex-file 24
+% chktex-file 25
+% chktex-file 36
+% chktex-file 37
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{Fit Airfoil with Cubic Bezier Curve}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+We define a function $S(\mathbf{P})$ as the sum of distance between cubic Bezier curve point
+$\mathbf{B}(t_i, \mathbf{P})$ and 4-digut NACA airfoil point $\mathbf{F}(x_i)$:
+\begin{equation*}
+    S(\mathbf{P}) = \sum_{i=1}^N \left| \mathbf{F}(x_i) - \mathbf{B}(t_i, \mathbf{P}) \right|^2 =
+    \left[ \mathbf{F} - \mathbf{B}(\mathbf{P}) \right]^\top \left[ \mathbf{F} - \mathbf{B}(\mathbf{P}) \right]
+\end{equation*}
+where $\mathbf{F}$ is:
+\begin{equation*}
+    \mathbf{F} =
+    \begin{bmatrix}
+        x_0 \\ y_0 \\ x_1 \\ y_1 \\ \vdots \\ x_{N-1} \\ y_{N-1}
+    \end{bmatrix}
+\end{equation*}
+where $x_i$ and $y_i$ are $x_u(x_i)$ and $y_u(x_i)$ in Eq.~(\ref{e:naca:up_xy}). And then, $\mathbf{P}$ and
+$\mathbf{B}(\mathbf{P})$ are:
+\begin{equation*}
+    \mathbf{P} =
+    \begin{bmatrix}
+        P_{x0} \\ P_{y0} \\ P_{x1} \\ P_{y1} \\ P_{x2} \\ P_{y2} \\ P_{x3} \\ P_{y3}
+    \end{bmatrix}
+\end{equation*}
+\begin{equation*}
+    \mathbf{B}(\mathbf{P}) =
+    \begin{bmatrix}
+        \Sigma b_{i,3}(t_0)P_{xi} \\
+        \Sigma b_{i,3}(t_0)P_{yi} \\
+        \Sigma b_{i,3}(t_1)P_{xi} \\
+        \Sigma b_{i,3}(t_1)P_{yi} \\
+        \vdots \\
+        \Sigma b_{i,3}(t_{N-1})P_{xi} \\
+        \Sigma b_{i,3}(t_{N-1})P_{yi} \\
+    \end{bmatrix}
+\end{equation*}
+
+Here, we fix $\mathbf{P}_0$ and $\mathbf{P}_3$ at leading edge and trailing edge. By keeping $S(\mathbf{P})$,
+$\mathbf{B}(t_i, \mathbf{P})$, $\mathbf{P}$, and $\mathbf{F}(x_i)$ can be rewritten as:
+\begin{equation*}
+    \mathbf{F} =
+    \begin{bmatrix}
+        x_0 - b_{0,3}(t_0)P_{x0} - b_{3,3}(t_0)P_{x3} \\
+        y_0 - b_{0,3}(t_0)P_{y0} - b_{3,3}(t_0)P_{y3} \\
+        x_1 - b_{0,3}(t_1)P_{x0} - b_{3,3}(t_1)P_{x3} \\
+        y_1 - b_{0,3}(t_1)P_{y0} - b_{3,3}(t_1)P_{y3} \\
+        \vdots \\
+        x_{N-1} - b_{0,3}(t_{N-1} )P_{x0} - b_{3,3}(t_{N-1} )P_{x3} \\
+        y_{N-1} - b_{0,3}(t_{N-1} )P_{y0} - b_{3,3}(t_{N-1} )P_{y3} 
+    \end{bmatrix}
+\end{equation*}
+\begin{equation*}
+    \mathbf{P} =
+    \begin{bmatrix}
+        P_{x1} \\ P_{y1} \\ P_{x2} \\ P_{y2}
+    \end{bmatrix}
+\end{equation*}
+\begin{equation*}
+    \mathbf{B}(\mathbf{P}) =
+    \begin{bmatrix}
+        b_{1,3}(t_0)P_{x1} + b_{2,3}(t_0)P_{x2} \\
+        b_{1,3}(t_0)P_{y1} + b_{2,3}(t_0)P_{y2} \\
+        b_{1,3}(t_1)P_{x1} + b_{2,3}(t_1)P_{x2} \\
+        b_{1,3}(t_1)P_{y1} + b_{2,3}(t_1)P_{y2} \\
+        \vdots \\
+        b_{1,3}(t_{N-1})P_{x1} + b_{2,3}(t_{N-1})P_{x2} \\
+        b_{1,3}(t_{N-1})P_{y1} + b_{2,3}(t_{N-1})P_{y2} \\
+    \end{bmatrix}
+\end{equation*}
+For computing $S(\mathbf{P})$, a common way is to select the same location of points at both $\mathbf{F}(x_i)$ and
+$\mathbf{B}(t_i, \mathbf{P})$. Unfortunately, the distribution of $\mathbf{B}(t_i, \mathbf{P})$ is also based on
+$\mathbf{P}$. It implies that this is a non-linear curve fitting problem.
+
+A general method to solve the non-linear least square problem is Levenberg-Marquardt algorithm (LM). According to this
+problem, the parameters $y_i$, $\beta$, and $f(x_i, \beta)$, in LM are equal to $\mathbf{F}(x_i)$, $\mathbf{P}$, and
+$\mathbf{B}(t_i, \mathbf{P})$, respectively. Also, $\mathbf{J}(t_i, \mathbf{P})$ can be computed:
+\begin{equation*}
+    \mathbf{J}(t_i, \mathbf{P}) = \frac{\partial \mathbf{B}(t_i, \mathbf{P})}{\partial \mathbf{P}} =
+    \begin{bmatrix}
+        b_{1,3}(t_i) & 0 & b_{2,3}(t_i) & 0 \\
+        0 & b_{1,3}(t_i) & 0 & b_{2,3}(t_i)
+    \end{bmatrix}
+\end{equation*}
+and the Jacobian matrix $\mathbf{J}(\mathbf{P})$ is:
+\begin{equation*}
+    \mathbf{J}(\mathbf{P}) =
+    \begin{bmatrix}
+        b_{1,3}(t_0) & 0 & b_{2,3}(t_0) & 0 \\
+        0 & b_{1,3}(t_0) & 0 & b_{2,3}(t_0) \\
+        b_{1,3}(t_1) & 0 & b_{2,3}(t_1) & 0 \\
+        0 & b_{1,3}(t_1) & 0 & b_{2,3}(t_1) \\
+        \vdots & \vdots & \vdots & \vdots \\
+        b_{1,3}(t_{N-1}) & 0 & b_{2,3}(t_{N-1}) & 0 \\
+        0 & b_{1,3}(t_{N-1}) & 0 & b_{2,3}(t_{N-1})
+    \end{bmatrix}
+\end{equation*}
+After determining all parameters in LM, we can follow the LM flow chart in Fig.~(\ref{f:lm_flow_chart}) to solve it.
+In the first step, the initial $\mathbf{P}_1$ is set as the intersection point of tangent line at $\mathbf{P}_0$ and
+tangent line at maximum thickness location, and $\mathbf{P}_2$ is set as the intersection point of tangent line at
+$\mathbf{P}_3$ and tangent line at maximum thickness location.
+
+Aside from LM, linear least square (LLS) is also a method to solve curve fitting problem. The parameters $\mathbf{A}$,
+$\mathbf{x}$, and $\mathbf{b}$ are equal to $\mathbf{J}(\mathbf{P})$, $\mathbf{P}$, and $\mathbf{F}$ in LM, respectively.
+And then, we design the flow using LLS:
+\tikzstyle{rect} = [rectangle, text width = 5cm, minimum height = 0.7cm, draw = black, text centered]
+\tikzstyle{diam} = [diamond, text width = 2.5cm, minimum height = 0.7cm, draw = black, text centered]
+\tikzstyle{arrow} = [thick, ->, >=stealth]
+\begin{figure}
+    \centering
+    \begin{tikzpicture}[node distance = 0.7cm, font = \small]
+        \node (rect_cpb) [rect] {Compute $\mathbf{b}$.};
+        \node (rect_sep) [rect, below = of rect_cpb] {Set $\mathbf{x}_0$.};
+        \node (rect_cpa) [rect, below = of rect_sep] {Compute $\mathbf{A}(\mathbf{x}_0)$.};
+        \node (rect_sox) [rect, below = of rect_cpa] {Solve $\mathbf{x}$.};
+        \node (diam_chk) [diam, below = of rect_sox] {$\left| \mathbf{x} - \mathbf{x}_0 \right| < \epsilon$ ?};
+        \node (rect_sol) [rect, below = of diam_chk] {Get $\mathbf{x}$.};
+        \node (rect_rsx) [rect, right of = diam_chk, xshift=6cm] {Set $\mathbf{x}_0$ = $\mathbf{x}$.};
+        \draw [arrow] (rect_cpb) -- (rect_sep);
+        \draw [arrow] (rect_sep) -- (rect_cpa);
+        \draw [arrow] (rect_cpa) -- (rect_sox);
+        \draw [arrow] (rect_sox) -- (diam_chk);
+        \draw [arrow] (diam_chk.south) node[anchor = north west]{Yes} -- (rect_sol);
+        \draw [arrow] (diam_chk.east) node[anchor = south west]{No} -- (rect_rsx);
+        \draw [arrow] (rect_rsx.north) |- (rect_cpa.east);
+    \end{tikzpicture}
+    \caption{The flow chart of LLS.}
+    \label{f:lls_flow_chart}
+\end{figure}
+
+In this method, $\epsilon$ is the error tolerance, and the $\mathbf{x}_0$ is what we guass $\mathbf{x}$ before solving
+it. Obviously, if $\mathbf{x}$ is closed to $\mathbf{x}_0$ enough, it is the solution.

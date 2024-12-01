@@ -1,0 +1,109 @@
+% chktex-file 3
+% chktex-file 8
+% chktex-file 10
+% chktex-file 13
+% chktex-file 17
+% chktex-file 24
+% chktex-file 25
+% chktex-file 36
+% chktex-file 37
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{Levenberg-Marquardt Algorithm}
+% ref: https://en.wikipedia.org/wiki/Levenberg%E2%80%93Marquardt_algorithm
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Levenberg-Marquardt algorithm (LM) is used to solve non-linear least squares problems, especailly for curve fitting. The
+LM combines Gauss-Newton algorithm and gradient descent algorithm. It can find the solution efficiently even if the
+initial point is set undesirably.
+
+For a non-linear least squares curve fitting problem, the sum of the squares of the deviations $S(\beta)$ is
+\begin{equation}
+    \label{e:lm:sd}
+    S(\beta) = \sum_{i=1}^N \left| y_i - f(x_i, \beta) \right|^2
+\end{equation}
+where $f(x, \beta)$ is a curve function, and $(x_i, y_i)$ is a set of $N+$ empirical pairs. To replace $\beta$ with
+$\beta + \delta$, the function $f(x_i, \beta + \delta)$ is approximated by linearization
+\begin{equation}
+    f(x_i, \beta + \delta) \approx f(x_i, \beta) + J_i \delta
+    \label{e:lm:f_apx}
+\end{equation}
+where $J_i$ is the gradient of $f$ with respect to $\beta$
+\begin{equation*}
+    J_i = \frac{\partial f(x_i, \beta)}{\partial \beta}
+\end{equation*}
+To get the $S(\beta + \delta)$, substitute Eq.~(\ref{e:lm:f_apx}) into Eq.~(\ref{e:lm:sd}) in vector notation
+\begin{equation*}
+    S(\beta + \delta) \approx \left| \mathbf{y} - \mathbf{f}(\beta) - \mathbf{J} \mathbf{\delta} \right|^2
+\end{equation*}
+where $\mathbf{J}$ is the Jacobian matrix, whose $i$th row is $J_i$. Set the derivative of $S(\beta + \delta)$ with
+respect to $\delta$ as zero to get the solution for minimizing $S(\beta + \delta)$
+\begin{equation*}
+    \left( \mathbf{J}^\top \mathbf{J} \right) \mathbf{\delta} = \mathbf{J}^\top \left[ \mathbf{y} - \mathbf{f}(\beta) \right]
+\end{equation*}
+Levenberg adds a damping term to make it become
+\begin{equation*}
+    \left( \mathbf{J}^\top \mathbf{J} + \lambda \mathbf{I} \right) \mathbf{\delta} =
+    \mathbf{J}^\top \left[ \mathbf{y} - \mathbf{f}(\beta) \right]
+\end{equation*}
+where $\mathbf{I}$ is the identity matrix. And the $\delta$ can be sloved as
+\begin{equation}
+    \mathbf{\delta} = \left( \mathbf{J}^\top \mathbf{J} + \lambda \mathbf{I} \right)^{-1}
+    \mathbf{J}^\top \left[ \mathbf{y} - \mathbf{f}(\beta) \right]
+    \label{e:lm:sol}
+\end{equation}
+If $\lambda \rightarrow 0$, the LM becomes Gauss-Newton algorithm. And, if $\lambda \rightarrow \infty$, the LM becomes
+gradient descent algorithm.
+
+The general flow chart in LM:
+\tikzstyle{rect} = [rectangle, text width = 5cm, minimum height = 0.7cm, draw = black, text centered]
+\tikzstyle{diam} = [diamond, text width = 2.2cm, minimum height = 0.7cm, draw = black, text centered]
+\tikzstyle{arrow} = [thick, ->, >=stealth]
+\begin{figure}[h!]
+    \centering
+    \begin{tikzpicture}[node distance = 0.7cm, font = \small]
+        \node (rect_seb0) [rect] {Set $\beta$ = $\beta_0$.};
+        \node (rect_cps0) [rect, below = of rect_seb0] {Compute $S_0(\beta)$.};
+        \node (diam_chk0) [diam, below = of rect_cps0] {$S_0 < \epsilon$ ?};
+        \node (rect_sel1) [rect, below = of diam_chk0] {Set $\lambda_1$ = $\lambda_0$.};
+        \node (rect_seb1) [rect, below = of rect_sel1] {Solve $\delta(\lambda_1)$ and $\beta$ = $\beta$ + $\delta$.};
+        \node (rect_cps1) [rect, below = of rect_seb1] {Compute $S_1(\beta)$.};
+        \node (diam_chk1) [diam, below = of rect_cps1] {$S_1 < \epsilon$ ?};
+        \node (rect_sel2) [rect, below = of diam_chk1] {Set $\lambda_2$ = $\lambda_1/\nu$.};
+        \node (rect_seb2) [rect, below = of rect_sel2] {Solve $\delta(\lambda_2)$ and $\beta$ = $\beta$ + $\delta$.};
+        \node (rect_cps2) [rect, below = of rect_seb2] {Compute $S_2(\beta)$.};
+        \node (diam_chk2) [diam, below = of rect_cps2] {$S_2 < \epsilon$ ?};
+        \node (rect_solu) [rect, below = of diam_chk2] {Get $\beta$.};
+        \node (diam_cmp2) [diam, right of = diam_chk2, xshift=4cm] {$S_2 < S_0, S_1$ ?};
+        \node (diam_cmp1) [diam, right of = diam_cmp2, xshift=4cm] {$S_1 < S_0$ ?};
+        \node (rect_rsl2) [rect, right of = rect_seb2, xshift=8.7cm] {Set $\lambda_2$ = $\lambda_1$.};
+        \node (rect_rsl1) [rect, right of = rect_seb1, xshift=8.7cm] {Set $\lambda_1$ = $\lambda_2$.};
+        \draw [arrow] (rect_seb0) -- (rect_cps0);
+        \draw [arrow] (rect_cps0) -- (diam_chk0);
+        \draw [arrow] (diam_chk0.west) node[anchor = south east]{Yes} -| ++(-2, 0) |- (rect_solu);
+        \draw [arrow] (diam_chk0.south) node[anchor = north west]{No} -- (rect_sel1);
+        \draw [arrow] (rect_sel1) -- (rect_seb1);
+        \draw [arrow] (rect_seb1) -- (rect_cps1);
+        \draw [arrow] (rect_cps1) -- (diam_chk1);
+        \draw [arrow] (diam_chk1.west) node[anchor = south east]{Yes} -| ++(-2, 0) |- (rect_solu);
+        \draw [arrow] (diam_chk1.south) node[anchor = north west]{No} -- (rect_sel2);
+        \draw [arrow] (rect_sel2) -- (rect_seb2);
+        \draw [arrow] (rect_seb2) -- (rect_cps2);
+        \draw [arrow] (rect_cps2) -- (diam_chk2);
+        \draw [arrow] (diam_chk2.south) node[anchor = north west]{Yes} -- (rect_solu);
+        \draw [arrow] (diam_chk2.east) node[anchor = south west]{No} -- (diam_cmp2);
+        \draw [arrow] (diam_cmp2.north) node[anchor = south west]{Yes} |- (rect_seb2);
+        \draw [arrow] (diam_cmp2.east) node[anchor = south west]{No} -- (diam_cmp1);
+        \draw [arrow] (diam_cmp1.north) node[anchor = south west]{Yes} -- (rect_rsl2);
+        \draw [arrow] (diam_cmp1.east) node[anchor = south west]{No} -| ++(2, 0) |- (rect_rsl1);
+        \draw [arrow] (rect_rsl2) -- (rect_seb2);
+        \draw [arrow] (rect_rsl1) -- (rect_seb1);
+    \end{tikzpicture}
+    \caption{The flow chart of LM.}
+    \label{f:lm_flow_chart}
+\end{figure}
+
+In the LM flow, $\beta_0$, $\lambda_0$, $\epsilon$, and $\nu$ have to be decided. $\epsilon$ is the error tolerance, and
+$\nu$ is a constant greater than 1.
