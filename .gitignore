@@ -2,7 +2,9 @@
 .idea/
 .hg/
 .ipynb_checkpoints/
+__pycache__/
 .texpadtmp/
+.vscode/
 tmp/
 /log/
 /handover
