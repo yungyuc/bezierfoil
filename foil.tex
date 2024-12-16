@@ -10,12 +10,16 @@
 % chktex-file 37
 
 \documentclass{turgon}
+
+%\usepackage{lmodern}
+
 \usepackage[printwatermark]{xwatermark}
 \usepackage{tikz}
 \usetikzlibrary{shapes.geometric, arrows, positioning}
 \newwatermark[allpages,color=black!15,angle=55,scale=5,xpos=0,ypos=0]%
 {DRAFT}
 
+%\doublespacing
 \linespread{1.2}
 
 \title{
@@ -30,8 +34,12 @@ Jie-Yin Lin and Yung-Yu Chen
 %
 }
 
+%\date{2008.6.4}
+
 \begin{document}
+
 \maketitle
+
 \tableofcontents
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -49,6 +57,7 @@ method\cite{chang_method_1995}.
 %%
 \chapter{Four-digit NACA Airfoil}
 % ref: https://en.wikipedia.org/wiki/NACA_airfoil#Five-digit_series
+
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -65,9 +74,9 @@ Terminology used for defining the airfoil:
     \item
     Camber line (red dashed line)
     \item
-    Leading edge ($x=0, y=0$)
+    Leading edge ($x = 0, y = 0$)
     \item
-    Trailing edge ($x=c, y=0$)
+    Trailing edge ($x = c, y = 0$)
 \end{enumerate}
 \begin{figure}[h!]
     \centering
@@ -98,7 +107,7 @@ The wing profile is defined by four-digit ($\mathrm{XYZZ}$):
 
 The formula to calculate the thickness is
 \begin{equation*}
-    y_h = 5h\left( 0.2969\sqrt{x}-0.1260x-0.3516x^2+0.2843x^3-0.1015x^4 \right)
+    y_h = 5h\left(0.2969\sqrt{x}-0.1260x-0.3516x^2+0.2843x^3-0.1015x^4\right)
 \end{equation*}
 where $x$ is the position along the chord (from $0$ to $1$), $y_h$ is the
 half thickness at a given value of $x$, and $h$ is the maximum thickness.
@@ -108,7 +117,7 @@ The camber line equation is
     y_c =
     \begin{cases}
         \frac{m}{p^2} (2px - x^2); & 0 \leq x \leq p \\
-        \frac{m}{(1 - p)^2} (1 - 2p + 2px - x^2); & p \leq x \leq 1
+    \frac{m}{(1-p)^2} (1 - 2p + 2px - x^2);  &  p \leq x \leq 1
     \end{cases}
 \end{equation*}
 where $y_c$ is the camber line point at a given value of $x$, $m$ is the
@@ -142,7 +151,7 @@ where
     \arctan \theta =
     \begin{cases}
         \frac{2m}{p^2} (p - x); & 0 \leq x \leq p \\
-        \frac{2m}{(1 - p)^2} (p - x); & p \leq x \leq 1
+    \frac{2m}{(1-p)^2} (p - x);  &  p \leq x \leq 1
     \end{cases}
 \end{equation*}
 
@@ -151,6 +160,7 @@ where
 \chapter{Cubic Bezier Curve}
 % ref: https://en.wikipedia.org/wiki/Bernstein_polynomial
 % ref: https://en.wikipedia.org/wiki/B%C3%A9zier_curve#Cubic_B%C3%A9zier_curves
+
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -170,7 +180,7 @@ The items of Bernstein basis polynomials of degree $n$ are defined as
     b_{m, n}(t) = {n \choose m} t^m (1 - t)^{n - m}
     \label{e:cbc:bbp}
 \end{equation}
-where ${n \choose m}$ is a binomial coefficient and $m = 0, 1, \dots, n$. The
+where ${n \choose m}$ is a binomial coefficient and $m=0,1, \dots ,n$. The
 Bernstein basis polynomials have the following properties:
 \begin{enumerate}
     \item
@@ -200,13 +210,13 @@ expanded to
 \end{equation}
 where $0 \leq t \leq 1$. The first-order derivative of $\mathbf{B}(t)$ is
 \begin{equation*}
-    \mathbf{B}^\prime(t) = 3 \left[
+    \mathbf{B}^\prime(t) = 3\left[
         (1-t)^2 (\mathbf{P}_1 - \mathbf{P}_0) + 2(1-t)t(\mathbf{P}_2 - \mathbf{P}_1) + t^2(\mathbf{P}_3 - \mathbf{P}_2)
     \right]
 \end{equation*}
 The second-order derivative of $B(t)$ is
 \begin{equation*}
-    \mathbf{B}^{\prime \prime}(t) = 6 \left[ (1-t)(\mathbf{P}_2 - 2\mathbf{P}_1 +\mathbf{P}_0) + t(\mathbf{P}_3 - 2\mathbf{P}_2 + \mathbf{P}_1) \right]
+    \mathbf{B}^{\prime \prime}(t) = 6\left[(1-t)(\mathbf{P}_2 - 2\mathbf{P}_1 +\mathbf{P}_0) + t(\mathbf{P}_3 - 2\mathbf{P}_2 + \mathbf{P}_1)\right]
 \end{equation*}
 
 For a sequence of $n$ cubic Bezier curves, $\mathbf{B}_0(t)$ through $\mathbf{B}_{n-1}(t)$,
@@ -221,6 +231,7 @@ curves.
 %%
 \chapter{Levenberg-Marquardt Algorithm}
 % ref: https://en.wikipedia.org/wiki/Levenberg%E2%80%93Marquardt_algorithm
+
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -330,6 +341,7 @@ than 1.
 %%
 \chapter{Linear Least Squares}
 % ref: https://en.wikipedia.org/wiki/Linear_least_squares
+
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -361,6 +373,7 @@ $\mathbf{b}$ in columnn space of $\mathbf{A}$.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
 \chapter{Fit Airfoil with Cubic Bezier Curve}
+
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -518,6 +531,7 @@ is closed to $\mathbf{x}_0$ enough, it is the solution.
 %\bibliographystyle{myunsrtnat} % no sort (order in appearance)
 \bibliographystyle{myplainnat} % sort by author
 \bibliography{turgon_main}
+
 \end{document}
 
 % vim: set ff=unix fenc=utf8 et sw=2 ts=2 sts=2 tw=79:
